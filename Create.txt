@@ -1,2 +1,74 @@
 Different text
 dodajes text
+import itertools
+import random
+import threading
+
+
+def factors(n: int) -> list[int]:
+    l = []
+    for i in range(1, n + 1):
+        if n % i == 0:
+            l.append(i)
+    return l
+
+
+def coprime(num1: int, num2: int) -> bool:
+    factors1 = factors(num1)
+    factors2 = factors(num2)
+
+    for item in factors1:
+        if item != 1 and item in factors2:
+            return False
+
+    return True
+
+
+def count_coprimes(l: list, start_index: int, end_index: int, result_list: list):
+    count = 0
+    for i in range(start_index, end_index):
+        subset = l[i]
+        copr = coprime(subset[0], subset[1])
+        if copr:
+            count += 1
+
+    result_list.append(count)
+
+
+def ammount_of_coprime(l: list) -> int:
+    thread_count = 4  # Number of threads to use
+    subset_count = len(l)
+    subset_size = subset_count // thread_count
+
+    threads = []
+    results = []
+
+    # Create and start the threads
+    for i in range(thread_count):
+        start_index = i * subset_size
+        end_index = start_index + subset_size if i != thread_count - 1 else subset_count
+        result = []
+        thread = threading.Thread(target=count_coprimes, args=(l, start_index, end_index, result))
+        threads.append(thread)
+        results.append(result)
+        thread.start()
+
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+
+    # Sum the results from each thread
+    total_count = sum(count[0] for count in results)
+    return total_count
+
+
+if __name__ == "__main__":
+    l = []
+
+    for i in range(500000):
+        n1 = random.randint(1, 50000)
+        n2 = random.randint(1, 50000)
+        l.append((n1, n2))
+
+    count = ammount_of_coprime(l)
+    print(count / 500000)
