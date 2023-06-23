@@ -58,6 +58,7 @@ def ammount_of_coprime(l: list) -> int:
         thread.join()
 
     # Sum the results from each thread
+	# Added stuff here
     total_count = sum(count[0] for count in results)
     return total_count
 
